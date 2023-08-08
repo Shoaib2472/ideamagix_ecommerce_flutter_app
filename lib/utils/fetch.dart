@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ideamagix_ecommerce_flutter_app/utils/env.dart';
@@ -9,8 +11,14 @@ class Fetch {
 
   final _dio = Dio();
 
-  _url({required String path, Map<String, String>? queryParamters}) {
-    return Uri(host: _apiHost, port: _apiPort, scheme: _apiScheme, path: path, queryParameters: queryParamters).toString();
+  _url({required String path, Map<String, String>? queryParamters, Map<String, dynamic>? data}) {
+    return Uri(
+            host: _apiHost,
+            // port: _apiPort,
+            scheme: 'https',
+            path: path,
+            queryParameters: queryParamters)
+        .toString();
   }
 
   _headers(token) {
@@ -23,11 +31,7 @@ class Fetch {
     };
   }
 
-  Future<String?> get({
-    required String path,
-    String? token,
-    Map<String, String>? queryParamters
-  }) async {
+  Future<String?> get({required String path, String? token, Map<String, String>? queryParamters}) async {
     String? response;
     try {
       Response httpResponse = await _dio.get(
@@ -36,10 +40,10 @@ class Fetch {
       );
 
       if (httpResponse.statusCode == 200) {
-        response = httpResponse.data;
+        response = jsonEncode(httpResponse.data);
       }
     } catch (e) {
-      Fluttertoast.showToast(msg: 'Network Error');
+      Fluttertoast.showToast(msg: 'Network Error: $e');
     }
 
     return response;
@@ -50,7 +54,21 @@ class Fetch {
     required Map<String, dynamic> data,
     String? token,
     Map<String, String>? queryParamters,
-  }) async {}
+  }) async {
+    String? response;
+    try {
+      Response httpResponse = await _dio.post(
+        _url(path: path, queryParamters: queryParamters, data: data),
+        options: Options(headers: _headers(token), validateStatus: (status) => status! < 500),
+      );
+      if (httpResponse.statusCode == 200) {
+        response = jsonEncode(httpResponse.data);
+      }
+    } catch (e) {
+      Fluttertoast.showToast(msg: 'Network Error: $e');
+    }
+    return response;
+  }
 
   Future<String?> put({
     required String path,
