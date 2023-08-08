@@ -4,31 +4,34 @@ import 'package:get/get.dart';
 import 'package:ideamagix_ecommerce_flutter_app/utils/fetch.dart';
 
 class CrudService extends GetxService {
-  late String _basePath;
+  late String basePath;
   CrudService({
-    required basePath,
+    required path,
   }) {
-    _basePath = basePath;
+    basePath = path;
   }
-  final Fetch _fetch = Fetch(); //instance of Fetch
+
+  final Fetch fetch = Fetch(); //instance of Fetch
   Future<dynamic> getMany({Map<String, String>? queryParamters}) async {
     //it takes query param
-    String? response = await _fetch.get(path: _basePath, queryParamters: queryParamters);
+    String? response = await fetch.get(path: basePath, queryParamters: queryParamters);
+    if (response == null) {
+      return null;
+    }
+    print(response);
+    return jsonDecode(response);
+  }
+
+  Future<dynamic> getOne(String id, {Map<String, String>? queryParamters}) async {
+    String? response = await fetch.get(path: basePath, queryParamters: queryParamters);
     if (response == null) {
       return null;
     }
     return jsonDecode(response);
   }
 
-  Future<dynamic> getOne(String id, {Map<String, String>? queryParamters}) async {
-    String? response = await _fetch.get(path: _basePath, queryParamters: queryParamters);
-    if (response == null) {
-      return null;
-    }
-    return jsonDecode(response);
-  }
-   Future<dynamic> postOne(Map<String,dynamic> data,{Map<String, String>? queryParamters}) async {
-    String? response = await _fetch.post(data:data, path: _basePath, queryParamters: queryParamters);
+  Future<dynamic> postOne(Map<String, dynamic> data, {Map<String, String>? queryParamters}) async {
+    String? response = await fetch.post(data: data, path: basePath, queryParamters: queryParamters);
     if (response == null) {
       return null;
     }

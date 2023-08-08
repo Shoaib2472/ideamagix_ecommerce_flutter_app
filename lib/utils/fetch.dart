@@ -11,7 +11,7 @@ class Fetch {
 
   final _dio = Dio();
 
-  _url({required String path, Map<String, String>? queryParamters, Map<String, dynamic>? data}) {
+  _url({required String path, Map<String, String>? queryParamters, Object? data}) {
     return Uri(
             host: _apiHost,
             // port: _apiPort,
@@ -25,7 +25,7 @@ class Fetch {
     // print(token);
     return {
       'Accept': 'application/json',
-      'Content-Type': 'application/json; charset=UTF-8',
+      'Content-Type': 'application/json',
       'content-language': 'en-US',
       'Authorization': 'Bearer $token',
     };
@@ -34,10 +34,14 @@ class Fetch {
   Future<String?> get({required String path, String? token, Map<String, String>? queryParamters}) async {
     String? response;
     try {
+      print('httpResponsein');
+
       Response httpResponse = await _dio.get(
         _url(path: path, queryParamters: queryParamters),
         options: Options(headers: _headers(token), validateStatus: (status) => status! < 500),
       );
+
+      print('httpResponse');
 
       if (httpResponse.statusCode == 200) {
         response = jsonEncode(httpResponse.data);
@@ -58,9 +62,14 @@ class Fetch {
     String? response;
     try {
       Response httpResponse = await _dio.post(
-        _url(path: path, queryParamters: queryParamters, data: data),
+        _url(path: path, queryParamters: queryParamters),
+        data: data,
         options: Options(headers: _headers(token), validateStatus: (status) => status! < 500),
       );
+      print(httpResponse.statusCode);
+      print('response');
+      print(httpResponse);
+      print(path);
       if (httpResponse.statusCode == 200) {
         response = jsonEncode(httpResponse.data);
       }
